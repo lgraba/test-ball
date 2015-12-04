@@ -3,6 +3,8 @@ package hello
 import (
 	"fmt"
 	"net/http"
+	"appengine"
+	"appengine/user"
 )
 
 func init() {
