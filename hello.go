@@ -17,7 +17,7 @@ func init() {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	u := user.Current(c)
+	u := user.Current(c)	
 	if u == nil {
 		url, err := user.LoginURL(c, r.URL.String())
 		if err != nil {
@@ -28,5 +28,5 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusFound)
 		return
 	}
-	fmt.Fprint(w, "Why Hello There, %v!", u)
+	fmt.Fprint(w, "Why Hello There, ", u, "!\n\n")
 }
