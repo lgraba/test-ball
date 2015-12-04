@@ -1,3 +1,7 @@
+// hello.go
+// A Hellow World HTTP serving example application
+// Next up: Deploy a guestbook, fool
+
 package hello
 
 import (
@@ -12,5 +16,17 @@ func init() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Go is pretty nice.")
+	c := appengine.NewContext(r)
+	u := user.Current(c)
+	if u == nil {
+		url, err := user.LoginURL(c, r.URL.String())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Location", url)
+		w.WriteHeader(http.StatusFound)
+		return
+	}
+	fmt.Fprint(w, "Why Hello There, %v!", u)
 }
