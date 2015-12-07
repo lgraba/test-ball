@@ -5,37 +5,34 @@
 package hello
 
 import (
-	"fmt"
+	// "fmt"
 	"html/template"
+	"io/ioutil"
 	"net/http"
 	// "appengine"
 	// "appengine/user"
 )
 
+var (
+	guestbookForm []byte
+	signTemplate = template.Must(template.ParseFiles("guestbook.html"))
+)
+
+
 func init() {
+	content, err := ioutil.ReadFile("guestbookform.html")
+	if err != nil {
+		panic(err)
+	}
+	guestbookForm = content
+
 	http.HandleFunc("/", root)
-	http.HandleFunc("/sign", sign)
+	http.HandleFunc("/entry", entry)
 }
 
 func root(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, guestbookForm)
+	w.Write(guestbookForm)
 }
-
-const guestbookForm = `
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<title>Test Ballin' Guestbook</title>
-	</head>
-	<body>
-		<form action="/sign" method="post">
-			<div><textarea name="content" rows="3" cols="60"></textarea></div>
-			<div><input type="submit" value="Sign It, Baby"></div>
-		</form>
-	</body>
-</html>
-`
 
 func sign(w http.ResponseWriter, r *http.Request) {
 	err := signTemplate.Execute(w, r.FormValue("content"))
@@ -43,18 +40,3 @@ func sign(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
-
-var signTemplate = template.Must(template.New("sign").Parse(signTemplateHTML))
-
-const signTemplateHTML = `
-<!DOCTYPE html>
-<html lang="en">
-	<head><meta charset="UTF-8" />
-		<title>Test Ballin' Guestbook Entry</title>
-	</head>
-	<body>
-		<p>You wrote:</p>
-		<pre>{{.}}</pre>
-	</body>
-</html>
-`
